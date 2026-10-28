@@ -1,7 +1,5 @@
 // ============================================================================
-// 🕹️ ไฟล์ที่ 4: game.js (ตัวเครื่องยนต์เกม Pac-Man)
-// ============================================================================
-// ไฟล์นี้อ่านค่าจาก config.js และอ่านตารางด่านจาก map.js มาวาดขึ้นหน้าจอ
+// 🕹️ File 4: game.js (Pac-Man Game Engine)
 // ============================================================================
 
 const canvas = document.getElementById("gameCanvas");
@@ -15,13 +13,8 @@ canvas.height = ROWS * TILE;
 
 const cfg = window.GAME_CONFIG;
 
-// แสดงค่าจาก config.js บนหน้าเว็บ เพื่อให้เห็นผลเวลาเพื่อนแก้ไฟล์แล้วกด Refresh
 document.getElementById("bannerMsg").textContent = cfg.BANNER_MESSAGE;
-document.getElementById("lastEditor").textContent = "ผู้แก้ไขล่าสุด: " + cfg.LAST_EDITED_BY;
-document.getElementById("cfgLives").textContent = cfg.INITIAL_LIVES;
-document.getElementById("cfgPacSpeed").textContent = cfg.PACMAN_SPEED_MS + " ms";
-document.getElementById("cfgGhostSpeed").textContent = cfg.GHOST_SPEED_MS + " ms";
-document.getElementById("cfgDotScore").textContent = cfg.SCORE_PER_DOT;
+document.getElementById("lastEditor").textContent = "Last Edited By: " + cfg.LAST_EDITED_BY;
 
 let map = [];
 let score = 0;
@@ -78,22 +71,22 @@ function updateHUD() {
   document.getElementById("livesVal").textContent = "❤️".repeat(Math.max(0, Math.min(lives, 10))) + (lives > 10 ? ` (x${lives})` : "");
   const statusEl = document.getElementById("statusVal");
   if (gameOver) {
-    statusEl.textContent = "💥 GAME OVER! กดปุ่มเริ่มใหม่";
+    statusEl.textContent = "💥 GAME OVER! Click Restart";
     statusEl.style.color = "#f87171";
   } else if (gameWon) {
-    statusEl.textContent = "🏆 ชนะแล้ว! เก็บครบทุกเม็ด!";
+    statusEl.textContent = "🏆 YOU WIN! All dots cleared!";
     statusEl.style.color = "#4ade80";
   } else if (powerTimer > 0) {
-    statusEl.textContent = `⚡ โหมดกินผี! (${powerTimer}s)`;
+    statusEl.textContent = `⚡ POWER MODE! (${powerTimer}s)`;
     statusEl.style.color = "#60a5fa";
   } else {
-    statusEl.textContent = "🎮 ใช้ปุ่มลูกศร หรือ W A S D บังคับ";
+    statusEl.textContent = "🎮 Use Arrow Keys or W A S D";
     statusEl.style.color = "#38bdf8";
   }
 }
 
 function canMove(r, c) {
-  if (c < 0 || c >= COLS) return true; // อุโมงค์ทะลุซ้าย-ขวา
+  if (c < 0 || c >= COLS) return true;
   if (r < 0 || r >= ROWS) return false;
   return map[r][c] !== 1;
 }
@@ -101,7 +94,6 @@ function canMove(r, c) {
 function stepPacman() {
   if (gameOver || gameWon) return;
 
-  // เปลี่ยนทิศทางถ้าช่องถัดไปไม่ติดกำแพง
   const tryR = pacman.r + pacman.nextDr;
   const tryC = (pacman.c + pacman.nextDc + COLS) % COLS;
   if (canMove(tryR, tryC)) {
@@ -121,7 +113,6 @@ function stepPacman() {
     mouthOpen = !mouthOpen;
   }
 
-  // กินจุด
   const cell = map[pacman.r][pacman.c];
   if (cell === 0) {
     map[pacman.r][pacman.c] = 9;
@@ -153,7 +144,6 @@ function stepGhosts() {
       { dr: 0, dc: 1 }
     ];
 
-    // กรองทางที่ไม่ชนกำแพง และไม่เดินถอยหลังกลับทันที (ยกเว้นทางตัน)
     let valid = dirs.filter(d => {
       const nr = g.r + d.dr;
       const nc = (g.c + d.dc + COLS) % COLS;
@@ -165,7 +155,6 @@ function stepGhosts() {
     }
 
     if (valid.length > 0) {
-      // โอกาส 60% เดินเข้าหา Pac-Man (หรือหนีถ้าอยู่ในโหมด Power)
       let chosen = valid[Math.floor(Math.random() * valid.length)];
       if (Math.random() < 0.6) {
         valid.sort((a, b) => {
@@ -190,7 +179,6 @@ function checkCollisions() {
   ghosts.forEach(g => {
     if (g.r === pacman.r && g.c === pacman.c) {
       if (powerTimer > 0) {
-        // กินผีได้! ส่งผีกลับบ้านตรงกลาง
         score += cfg.SCORE_PER_GHOST;
         g.r = 10;
         g.c = 9;
@@ -209,7 +197,6 @@ function checkCollisions() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 1. วาดแผนที่
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       const cell = map[r][c];
@@ -233,7 +220,6 @@ function draw() {
     }
   }
 
-  // 2. วาด Pac-Man
   const px = pacman.c * TILE + TILE / 2;
   const py = pacman.r * TILE + TILE / 2;
   const mouth = mouthOpen ? 0.23 * Math.PI : 0.04 * Math.PI;
@@ -244,7 +230,6 @@ function draw() {
   ctx.closePath();
   ctx.fill();
 
-  // 3. วาดผีทั้ง 4 ตัว
   ghosts.forEach(g => {
     const gx = g.c * TILE + TILE / 2;
     const gy = g.r * TILE + TILE / 2;
@@ -258,7 +243,6 @@ function draw() {
     ctx.closePath();
     ctx.fill();
 
-    // ตาผี
     ctx.fillStyle = "#ffffff";
     ctx.beginPath();
     ctx.arc(gx - 4, gy - 3, 3, 0, Math.PI * 2);
@@ -275,7 +259,6 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// รับปุ่มคีย์บอร์ด
 window.addEventListener("keydown", e => {
   if (["ArrowUp", "KeyW"].includes(e.code)) { pacman.nextDr = -1; pacman.nextDc = 0; e.preventDefault(); }
   if (["ArrowDown", "KeyS"].includes(e.code)) { pacman.nextDr = 1; pacman.nextDc = 0; e.preventDefault(); }
@@ -285,7 +268,6 @@ window.addEventListener("keydown", e => {
 
 document.getElementById("restartBtn").addEventListener("click", initGame);
 
-// เริ่มลูปเวลา
 initGame();
 setInterval(stepPacman, cfg.PACMAN_SPEED_MS);
 setInterval(stepGhosts, cfg.GHOST_SPEED_MS);

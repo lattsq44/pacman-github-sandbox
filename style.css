@@ -1,5 +1,5 @@
 /* ============================================================================
-   🎨 ไฟล์ที่ 3: style.css (ไฟล์ตกแต่งหน้าตาและสีสันของหน้าเว็บ)
+   🎨 File 3: style.css (UI & Theme Styling)
    ============================================================================ */
 
 * {
@@ -16,31 +16,33 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
 .header-bar {
-  max-width: 960px;
+  max-width: 520px;
   width: 100%;
   background: rgba(30, 41, 59, 0.85);
   border: 1px solid #334155;
   border-radius: 14px;
-  padding: 14px 20px;
+  padding: 14px 18px;
   margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .title-group h1 {
-  font-size: 22px;
+  font-size: 18px;
   color: #facc15;
   letter-spacing: 0.5px;
 }
 
 .title-group p {
-  font-size: 13px;
+  font-size: 12px;
   color: #94a3b8;
   margin-top: 3px;
 }
@@ -49,19 +51,18 @@ body {
   background: #0f172a;
   border: 1px solid #38bdf8;
   color: #38bdf8;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .main-layout {
-  max-width: 960px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 20px;
-  align-items: start;
 }
 
 .game-card {
@@ -110,7 +111,7 @@ canvas {
   background: #eab308;
   color: #0f172a;
   border: none;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
@@ -121,62 +122,4 @@ canvas {
 .btn:hover {
   background: #facc15;
   transform: translateY(-1px);
-}
-
-.info-panel {
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid #334155;
-  border-radius: 16px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.info-panel h2 {
-  font-size: 16px;
-  color: #38bdf8;
-  border-bottom: 1px solid #1e293b;
-  padding-bottom: 8px;
-}
-
-.config-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.config-table td {
-  padding: 6px 4px;
-  border-bottom: 1px solid #1e293b;
-}
-
-.config-table td:first-child {
-  color: #94a3b8;
-}
-
-.config-table td:last-child {
-  color: #f8fafc;
-  font-weight: 700;
-  text-align: right;
-  font-family: Consolas, monospace;
-}
-
-.file-guide {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.file-item {
-  background: #1e293b;
-  padding: 9px 12px;
-  border-radius: 8px;
-  border-left: 3px solid #facc15;
-}
-
-.file-item strong {
-  color: #fde047;
 }
