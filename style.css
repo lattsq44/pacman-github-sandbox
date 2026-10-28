@@ -1,5 +1,5 @@
-/* ============================================================================
-   🎨 File 3: style.css (UI & Theme Styling)
+﻿/* ============================================================================
+   ðŸŽ¨ File 3: style.css (UI & Theme Styling)
    ============================================================================ */
 
 * {
@@ -95,9 +95,9 @@ body {
 
 canvas {
   background: #000000;
-  border: 3px solid #1d4ed8;
+  border: 3px solid #eab308;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(29, 78, 216, 0.4);
+  box-shadow: 0 0 20px rgba(234, 179, 8, 0.45);
 }
 
 .controls-row {
@@ -123,3 +123,4 @@ canvas {
   background: #facc15;
   transform: translateY(-1px);
 }
+

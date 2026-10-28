@@ -1,5 +1,5 @@
-// ============================================================================
-// 🕹️ File 4: game.js (Pac-Man Game Engine)
+﻿// ============================================================================
+// File 4: game.js — Pac-Man engine (v2: Kedar face + yellow walls via config)
 // ============================================================================
 
 const canvas = document.getElementById("gameCanvas");
@@ -15,6 +15,11 @@ const cfg = window.GAME_CONFIG;
 
 document.getElementById("bannerMsg").textContent = cfg.BANNER_MESSAGE;
 document.getElementById("lastEditor").textContent = "Last Edited By: " + cfg.LAST_EDITED_BY;
+
+const kedarImg = new Image();
+kedarImg.src = "kedar.jpg";
+let kedarReady = false;
+kedarImg.onload = () => { kedarReady = true; };
 
 let map = [];
 let score = 0;
@@ -194,6 +199,37 @@ function checkCollisions() {
   });
 }
 
+function drawKedarPacman(px, py) {
+  const rad = TILE / 2 - 2;
+  const mouth = mouthOpen ? 0.23 * Math.PI : 0.04 * Math.PI;
+  const start = pacman.angle + mouth;
+  const end = pacman.angle + Math.PI * 2 - mouth;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(px, py, rad, start, end, false);
+  ctx.lineTo(px, py);
+  ctx.closePath();
+  ctx.clip();
+
+  if (kedarReady) {
+    ctx.drawImage(kedarImg, px - rad, py - rad, rad * 2, rad * 2);
+  } else {
+    ctx.fillStyle = cfg.PACMAN_COLOR;
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Yellow rim so it still reads as Pac-Man
+  ctx.beginPath();
+  ctx.arc(px, py, rad, start, end, false);
+  ctx.lineTo(px, py);
+  ctx.closePath();
+  ctx.strokeStyle = "#FACC15";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -222,13 +258,7 @@ function draw() {
 
   const px = pacman.c * TILE + TILE / 2;
   const py = pacman.r * TILE + TILE / 2;
-  const mouth = mouthOpen ? 0.23 * Math.PI : 0.04 * Math.PI;
-  ctx.fillStyle = cfg.PACMAN_COLOR;
-  ctx.beginPath();
-  ctx.arc(px, py, TILE / 2 - 2, pacman.angle + mouth, pacman.angle + Math.PI * 2 - mouth);
-  ctx.lineTo(px, py);
-  ctx.closePath();
-  ctx.fill();
+  drawKedarPacman(px, py);
 
   ghosts.forEach(g => {
     const gx = g.c * TILE + TILE / 2;
