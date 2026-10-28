@@ -1,0 +1,298 @@
+// ============================================================================
+// 🕹️ ไฟล์ที่ 4: game.js (ตัวเครื่องยนต์เกม Pac-Man)
+// ============================================================================
+// ไฟล์นี้อ่านค่าจาก config.js และอ่านตารางด่านจาก map.js มาวาดขึ้นหน้าจอ
+// ============================================================================
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const TILE = 24;
+const ROWS = window.GAME_MAP_TEMPLATE.length;
+const COLS = window.GAME_MAP_TEMPLATE[0].length;
+canvas.width = COLS * TILE;
+canvas.height = ROWS * TILE;
+
+const cfg = window.GAME_CONFIG;
+
+// แสดงค่าจาก config.js บนหน้าเว็บ เพื่อให้เห็นผลเวลาเพื่อนแก้ไฟล์แล้วกด Refresh
+document.getElementById("bannerMsg").textContent = cfg.BANNER_MESSAGE;
+document.getElementById("lastEditor").textContent = "ผู้แก้ไขล่าสุด: " + cfg.LAST_EDITED_BY;
+document.getElementById("cfgLives").textContent = cfg.INITIAL_LIVES;
+document.getElementById("cfgPacSpeed").textContent = cfg.PACMAN_SPEED_MS + " ms";
+document.getElementById("cfgGhostSpeed").textContent = cfg.GHOST_SPEED_MS + " ms";
+document.getElementById("cfgDotScore").textContent = cfg.SCORE_PER_DOT;
+
+let map = [];
+let score = 0;
+let lives = cfg.INITIAL_LIVES;
+let dotsRemaining = 0;
+let powerTimer = 0;
+let gameOver = false;
+let gameWon = false;
+let mouthOpen = true;
+
+let pacman = { r: 16, c: 9, dr: 0, dc: 0, nextDr: 0, nextDc: 0, angle: 0 };
+let ghosts = [];
+
+function cloneMap() {
+  map = window.GAME_MAP_TEMPLATE.map(row => [...row]);
+  dotsRemaining = 0;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (map[r][c] === 0 || map[r][c] === 2) dotsRemaining++;
+    }
+  }
+}
+
+function resetPositions() {
+  pacman = { r: 16, c: 9, dr: 0, dc: -1, nextDr: 0, nextDc: -1, angle: Math.PI };
+  const startCoords = [
+    { r: 9, c: 9 },
+    { r: 10, c: 8 },
+    { r: 10, c: 9 },
+    { r: 10, c: 10 }
+  ];
+  ghosts = startCoords.map((pos, idx) => ({
+    r: pos.r,
+    c: pos.c,
+    dr: idx % 2 === 0 ? -1 : 0,
+    dc: idx % 2 === 0 ? 0 : 1,
+    color: cfg.GHOST_COLORS[idx % cfg.GHOST_COLORS.length]
+  }));
+}
+
+function initGame() {
+  score = 0;
+  lives = cfg.INITIAL_LIVES;
+  powerTimer = 0;
+  gameOver = false;
+  gameWon = false;
+  cloneMap();
+  resetPositions();
+  updateHUD();
+}
+
+function updateHUD() {
+  document.getElementById("scoreVal").textContent = score;
+  document.getElementById("livesVal").textContent = "❤️".repeat(Math.max(0, Math.min(lives, 10))) + (lives > 10 ? ` (x${lives})` : "");
+  const statusEl = document.getElementById("statusVal");
+  if (gameOver) {
+    statusEl.textContent = "💥 GAME OVER! กดปุ่มเริ่มใหม่";
+    statusEl.style.color = "#f87171";
+  } else if (gameWon) {
+    statusEl.textContent = "🏆 ชนะแล้ว! เก็บครบทุกเม็ด!";
+    statusEl.style.color = "#4ade80";
+  } else if (powerTimer > 0) {
+    statusEl.textContent = `⚡ โหมดกินผี! (${powerTimer}s)`;
+    statusEl.style.color = "#60a5fa";
+  } else {
+    statusEl.textContent = "🎮 ใช้ปุ่มลูกศร หรือ W A S D บังคับ";
+    statusEl.style.color = "#38bdf8";
+  }
+}
+
+function canMove(r, c) {
+  if (c < 0 || c >= COLS) return true; // อุโมงค์ทะลุซ้าย-ขวา
+  if (r < 0 || r >= ROWS) return false;
+  return map[r][c] !== 1;
+}
+
+function stepPacman() {
+  if (gameOver || gameWon) return;
+
+  // เปลี่ยนทิศทางถ้าช่องถัดไปไม่ติดกำแพง
+  const tryR = pacman.r + pacman.nextDr;
+  const tryC = (pacman.c + pacman.nextDc + COLS) % COLS;
+  if (canMove(tryR, tryC)) {
+    pacman.dr = pacman.nextDr;
+    pacman.dc = pacman.nextDc;
+    if (pacman.dc === 1) pacman.angle = 0;
+    else if (pacman.dc === -1) pacman.angle = Math.PI;
+    else if (pacman.dr === -1) pacman.angle = -Math.PI / 2;
+    else if (pacman.dr === 1) pacman.angle = Math.PI / 2;
+  }
+
+  const nextR = pacman.r + pacman.dr;
+  const nextC = (pacman.c + pacman.dc + COLS) % COLS;
+  if (canMove(nextR, nextC)) {
+    pacman.r = nextR;
+    pacman.c = nextC;
+    mouthOpen = !mouthOpen;
+  }
+
+  // กินจุด
+  const cell = map[pacman.r][pacman.c];
+  if (cell === 0) {
+    map[pacman.r][pacman.c] = 9;
+    score += cfg.SCORE_PER_DOT;
+    dotsRemaining--;
+  } else if (cell === 2) {
+    map[pacman.r][pacman.c] = 9;
+    score += cfg.SCORE_PER_POWER_PELLET;
+    dotsRemaining--;
+    powerTimer = cfg.POWER_MODE_SECONDS;
+  }
+
+  if (dotsRemaining <= 0) {
+    gameWon = true;
+  }
+
+  checkCollisions();
+  updateHUD();
+}
+
+function stepGhosts() {
+  if (gameOver || gameWon) return;
+
+  ghosts.forEach(g => {
+    const dirs = [
+      { dr: -1, dc: 0 },
+      { dr: 1, dc: 0 },
+      { dr: 0, dc: -1 },
+      { dr: 0, dc: 1 }
+    ];
+
+    // กรองทางที่ไม่ชนกำแพง และไม่เดินถอยหลังกลับทันที (ยกเว้นทางตัน)
+    let valid = dirs.filter(d => {
+      const nr = g.r + d.dr;
+      const nc = (g.c + d.dc + COLS) % COLS;
+      return canMove(nr, nc) && !(d.dr === -g.dr && d.dc === -g.dc);
+    });
+
+    if (valid.length === 0) {
+      valid = dirs.filter(d => canMove(g.r + d.dr, (g.c + d.dc + COLS) % COLS));
+    }
+
+    if (valid.length > 0) {
+      // โอกาส 60% เดินเข้าหา Pac-Man (หรือหนีถ้าอยู่ในโหมด Power)
+      let chosen = valid[Math.floor(Math.random() * valid.length)];
+      if (Math.random() < 0.6) {
+        valid.sort((a, b) => {
+          const distA = Math.hypot((g.r + a.dr) - pacman.r, (g.c + a.dc) - pacman.c);
+          const distB = Math.hypot((g.r + b.dr) - pacman.r, (g.c + b.dc) - pacman.c);
+          return powerTimer > 0 ? distB - distA : distA - distB;
+        });
+        chosen = valid[0];
+      }
+      g.dr = chosen.dr;
+      g.dc = chosen.dc;
+      g.r += g.dr;
+      g.c = (g.c + g.dc + COLS) % COLS;
+    }
+  });
+
+  checkCollisions();
+  updateHUD();
+}
+
+function checkCollisions() {
+  ghosts.forEach(g => {
+    if (g.r === pacman.r && g.c === pacman.c) {
+      if (powerTimer > 0) {
+        // กินผีได้! ส่งผีกลับบ้านตรงกลาง
+        score += cfg.SCORE_PER_GHOST;
+        g.r = 10;
+        g.c = 9;
+      } else {
+        lives--;
+        if (lives <= 0) {
+          gameOver = true;
+        } else {
+          resetPositions();
+        }
+      }
+    }
+  });
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 1. วาดแผนที่
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = map[r][c];
+      const x = c * TILE;
+      const y = r * TILE;
+
+      if (cell === 1) {
+        ctx.fillStyle = cfg.WALL_COLOR;
+        ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      } else if (cell === 0) {
+        ctx.fillStyle = "#fde047";
+        ctx.beginPath();
+        ctx.arc(x + TILE / 2, y + TILE / 2, 3, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (cell === 2) {
+        ctx.fillStyle = "#f97316";
+        ctx.beginPath();
+        ctx.arc(x + TILE / 2, y + TILE / 2, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // 2. วาด Pac-Man
+  const px = pacman.c * TILE + TILE / 2;
+  const py = pacman.r * TILE + TILE / 2;
+  const mouth = mouthOpen ? 0.23 * Math.PI : 0.04 * Math.PI;
+  ctx.fillStyle = cfg.PACMAN_COLOR;
+  ctx.beginPath();
+  ctx.arc(px, py, TILE / 2 - 2, pacman.angle + mouth, pacman.angle + Math.PI * 2 - mouth);
+  ctx.lineTo(px, py);
+  ctx.closePath();
+  ctx.fill();
+
+  // 3. วาดผีทั้ง 4 ตัว
+  ghosts.forEach(g => {
+    const gx = g.c * TILE + TILE / 2;
+    const gy = g.r * TILE + TILE / 2;
+    const rad = TILE / 2 - 2;
+
+    ctx.fillStyle = powerTimer > 0 ? "#2563eb" : g.color;
+    ctx.beginPath();
+    ctx.arc(gx, gy - 2, rad, Math.PI, 0, false);
+    ctx.lineTo(gx + rad, gy + rad);
+    ctx.lineTo(gx - rad, gy + rad);
+    ctx.closePath();
+    ctx.fill();
+
+    // ตาผี
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(gx - 4, gy - 3, 3, 0, Math.PI * 2);
+    ctx.arc(gx + 4, gy - 3, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#0f172a";
+    ctx.beginPath();
+    ctx.arc(gx - 4 + g.dc, gy - 3 + g.dr, 1.5, 0, Math.PI * 2);
+    ctx.arc(gx + 4 + g.dc, gy - 3 + g.dr, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  requestAnimationFrame(draw);
+}
+
+// รับปุ่มคีย์บอร์ด
+window.addEventListener("keydown", e => {
+  if (["ArrowUp", "KeyW"].includes(e.code)) { pacman.nextDr = -1; pacman.nextDc = 0; e.preventDefault(); }
+  if (["ArrowDown", "KeyS"].includes(e.code)) { pacman.nextDr = 1; pacman.nextDc = 0; e.preventDefault(); }
+  if (["ArrowLeft", "KeyA"].includes(e.code)) { pacman.nextDr = 0; pacman.nextDc = -1; e.preventDefault(); }
+  if (["ArrowRight", "KeyD"].includes(e.code)) { pacman.nextDr = 0; pacman.nextDc = 1; e.preventDefault(); }
+});
+
+document.getElementById("restartBtn").addEventListener("click", initGame);
+
+// เริ่มลูปเวลา
+initGame();
+setInterval(stepPacman, cfg.PACMAN_SPEED_MS);
+setInterval(stepGhosts, cfg.GHOST_SPEED_MS);
+setInterval(() => {
+  if (powerTimer > 0) {
+    powerTimer--;
+    updateHUD();
+  }
+}, 1000);
+requestAnimationFrame(draw);

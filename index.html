@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Square44 Pac-Man — สนามซ้อม GitHub สำหรับทีม</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="header-bar">
+    <div class="title-group">
+      <h1>🍒 SQUARE44 PAC-MAN // GITHUB SANDBOX</h1>
+      <p id="bannerMsg">กำลังโหลดข้อความจากไฟล์ config.js...</p>
+    </div>
+    <div class="git-badge" id="lastEditor">ผู้แก้ไขล่าสุด: -</div>
+  </div>
+
+  <div class="main-layout">
+    <!-- กระดานเกม -->
+    <div class="game-card">
+      <div class="hud-row">
+        <span class="hud-score">SCORE: <span id="scoreVal">0</span></span>
+        <span class="hud-status" id="statusVal">🎮 ใช้ปุ่มลูกศร หรือ W A S D</span>
+        <span class="hud-lives" id="livesVal">❤️❤️❤️</span>
+      </div>
+
+      <canvas id="gameCanvas"></canvas>
+
+      <div class="controls-row">
+        <button class="btn" id="restartBtn">🔄 เริ่มเกมใหม่ (Restart)</button>
+      </div>
+    </div>
+
+    <!-- แผงอธิบายการทำงานของไฟล์สำหรับซ้อม GitHub -->
+    <div class="info-panel">
+      <h2>🔍 ค่าที่ถูกดึงมาจากไฟล์ <code>config.js</code> ตอนนี้:</h2>
+      <table class="config-table">
+        <tr>
+          <td>จำนวนชีวิตเริ่มต้น (INITIAL_LIVES)</td>
+          <td id="cfgLives">-</td>
+        </tr>
+        <tr>
+          <td>ความเร็ว Pac-Man (PACMAN_SPEED_MS)</td>
+          <td id="cfgPacSpeed">-</td>
+        </tr>
+        <tr>
+          <td>ความเร็วผี (GHOST_SPEED_MS)</td>
+          <td id="cfgGhostSpeed">-</td>
+        </tr>
+        <tr>
+          <td>คะแนนต่อเม็ด (SCORE_PER_DOT)</td>
+          <td id="cfgDotScore">-</td>
+        </tr>
+      </table>
+
+      <h2>📂 โครงสร้างไฟล์ (ทำไม GitHub ถึงช่วยให้ทำงานร่วมกันได้?)</h2>
+      <div class="file-guide">
+        <div class="file-item">
+          <strong>1. <code>config.js</code> (กติกา & ความเร็ว)</strong><br>
+          เพื่อนคนที่ 1 ลองเปิดไฟล์นี้ด้วย Notepad / VS Code แล้วแก้จำนวนชีวิตเป็น <code>99</code> หรือเปลี่ยนสีผี แล้วกด Save + Commit
+        </div>
+        <div class="file-item">
+          <strong>2. <code>map.js</code> (แผนที่เขาวงกต)</strong><br>
+          เพื่อนคนที่ 2 ลองเปิดไฟล์นี้แล้วแก้ตัวเลข <code>1</code> (กำแพง) กับ <code>0</code> (จุดกิน) เพื่อสร้างด่านใหม่ของตัวเอง
+        </div>
+        <div class="file-item">
+          <strong>3. <code>style.css</code> (สีสันหน้าเว็บ)</strong><br>
+          เพื่อนคนที่ 3 ลองเปลี่ยนสีพื้นหลังหรือขนาดตัวอักษร โดยไม่กระทบโค้ดเกมของคนอื่นเลย!
+        </div>
+        <div class="file-item">
+          <strong>4. <code>game.js</code> & <code>index.html</code> (เครื่องยนต์หลัก)</strong><br>
+          คอยเอาไฟล์ของเพื่อนทุกคนมารวมร่างกันเป็นเกมเดียว เมื่อทุกคนกด <code>git pull</code> และ <code>git push</code>!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- โหลดไฟล์แยกทีละส่วน เพื่อให้เห็นการทำงานแบบ Modular บน GitHub -->
+  <script src="config.js"></script>
+  <script src="map.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
