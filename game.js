@@ -1,5 +1,5 @@
-﻿// ============================================================================
-// File 4: game.js — Pac-Man engine (v2: Kedar face + yellow walls via config)
+// ============================================================================
+// File 4: game.js — Pac-Man engine (v3: Kedar face + red walls + pink dots)
 // ============================================================================
 
 const canvas = document.getElementById("gameCanvas");
@@ -243,9 +243,9 @@ function draw() {
         ctx.fillStyle = cfg.WALL_COLOR;
         ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
       } else if (cell === 0) {
-        ctx.fillStyle = "#fde047";
+        ctx.fillStyle = cfg.DOT_COLOR || "#f472b6";
         ctx.beginPath();
-        ctx.arc(x + TILE / 2, y + TILE / 2, 3, 0, Math.PI * 2);
+        ctx.arc(x + TILE / 2, y + TILE / 2, 3.5, 0, Math.PI * 2);
         ctx.fill();
       } else if (cell === 2) {
         ctx.fillStyle = "#f97316";

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SQUARE44 PAC-MAN // v3 KEDAR</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="header-bar">
+    <div class="title-group">
+      <h1>🍒 SQUARE44 PAC-MAN // v3 KEDAR</h1>
+      <p id="bannerMsg">Loading config.js...</p>
+    </div>
+    <div class="git-badge" id="lastEditor">Last Edited By: -</div>
+  </div>
+
+  <div class="main-layout">
+    <div class="game-card">
+      <div class="hud-row">
+        <span class="hud-score">SCORE: <span id="scoreVal">0</span></span>
+        <span class="hud-status" id="statusVal">🎮 Use Arrow Keys or W A S D</span>
+        <span class="hud-lives" id="livesVal">❤️❤️❤️</span>
+      </div>
+
+      <canvas id="gameCanvas"></canvas>
+
+      <div class="controls-row">
+        <button class="btn" id="restartBtn">🔄 Restart Game</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="map.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
