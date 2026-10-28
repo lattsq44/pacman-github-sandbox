@@ -95,9 +95,9 @@ body {
 
 canvas {
   background: #000000;
-  border: 3px solid #ef4444;
+  border: 3px solid #a855f7;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.45);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
 }
 
 .controls-row {

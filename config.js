@@ -1,9 +1,9 @@
 // ============================================================================
-// File 1: config.js — Square44 Pac-Man v3 (Red walls + Pink dots + Kedar face)
+// File 1: config.js — Square44 Pac-Man v4 (Purple walls + Pink dots + Kedar face)
 // ============================================================================
 
 window.GAME_CONFIG = {
-  LAST_EDITED_BY: "Latt (v3 Red walls + Pink dots + Kedar face)",
+  LAST_EDITED_BY: "Latt (v4 Purple walls + Pink dots + Kedar face)",
 
   INITIAL_LIVES: 3,
 
@@ -17,7 +17,7 @@ window.GAME_CONFIG = {
   POWER_MODE_SECONDS: 7,
 
   PACMAN_COLOR: "#FFD700",
-  WALL_COLOR: "#EF4444", // Red walls
+  WALL_COLOR: "#A855F7", // Purple walls
   DOT_COLOR: "#F472B6",  // Pink dots
   GHOST_COLORS: [
     "#EF4444",
@@ -26,5 +26,5 @@ window.GAME_CONFIG = {
     "#FB923C"
   ],
 
-  BANNER_MESSAGE: "v3 — Red walls + Pink dots + Kedar face. Arrow keys / WASD."
+  BANNER_MESSAGE: "v4 — Purple walls + Pink dots + Kedar face. Arrow keys / WASD."
 };
